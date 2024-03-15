@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "341179078528",
+    "firebase_url": "https://tujapp-a3a16-default-rtdb.firebaseio.com",
+    "project_id": "tujapp-a3a16",
+    "storage_bucket": "tujapp-a3a16.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:341179078528:android:cd898e851732bd0020d365",
+        "android_client_info": {
+          "package_name": "com.example.tujapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDSJ8WnYQlCOy42jJnqV2z28DpbCCKSPTY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
