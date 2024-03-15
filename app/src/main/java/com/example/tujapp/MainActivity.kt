@@ -29,9 +29,9 @@ class MainActivity : ComponentActivity() {
             }
         }
         val database = Firebase.database
-        val myRef = database.getReference("message")
+        val myRef = database.getReference("test")
 
-        myRef.setValue("another word")
+        myRef.setValue("他の単語")
     }
 }
 
