@@ -11,8 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.tujapp.ui.theme.TujAppTheme
-import com.google.firebase.Firebase
-import com.google.firebase.database.database
+import com.google.firebase.database.ktx.database
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,10 +27,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        val database = Firebase.database
-        val myRef = database.getReference("test")
+        val database = com.google.firebase.ktx.Firebase.database
+        val myRef = database.getReference("kaito")
 
-        myRef.setValue("他の単語")
+        myRef.setValue("just testing")
     }
 }
 
