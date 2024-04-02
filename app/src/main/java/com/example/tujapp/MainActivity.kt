@@ -103,7 +103,9 @@ fun BottomNavBar(navController: NavController) {
         BottomNavItem.Profile,
     )
 
-    NavigationBar {
+    NavigationBar(
+        containerColor = Color.White,
+    ) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
                 selected = selectedItem == index,
@@ -124,6 +126,7 @@ fun BottomNavBar(navController: NavController) {
                     }
                 },
                 colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color.White,
                     selectedIconColor = Color(164, 30, 53),
                     selectedTextColor = Color(164, 30, 53),
                     unselectedIconColor = Color(164, 30, 53),
