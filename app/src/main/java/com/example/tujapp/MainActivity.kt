@@ -34,6 +34,7 @@ import com.example.tujapp.ui.ForumScreen
 import com.example.tujapp.ui.InternshipScreen
 import com.example.tujapp.ui.ProfileScreen
 import com.example.tujapp.ui.ProjectScreen
+import com.example.tujapp.ui.auth.SignUpScreen
 import com.example.tujapp.ui.theme.TujAppTheme
 import com.google.firebase.database.ktx.database
 
