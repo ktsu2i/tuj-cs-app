@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-sealed class BottomNavItem(var title: String, var unselected_icon: Int, var selected_icon: Int, var route: String) {
+sealed class BottomNavItem(var title: String, var unselectedIcon: Int, var selectedIcon: Int, var route: String) {
     data object Forum: BottomNavItem("Forum", R.drawable.unselected_forum_logo, R.drawable.forum_icon, "forum")
     data object Project: BottomNavItem("Projects",R.drawable.unselected_project_logo , R.drawable.project_logo, "projects")
     data object Internship: BottomNavItem("Internship", R.drawable.unselected_job_logo, R.drawable.job_logo, "internship")
@@ -130,7 +130,7 @@ fun BottomNavBar(navController: NavController) {
                     unselectedTextColor = Color(164, 30, 53),
                 ),
                 icon = { Icon(
-                    painter = painterResource(if (selectedItem == index) item.selected_icon else item.unselected_icon),
+                    painter = painterResource(if (selectedItem == index) item.selectedIcon else item.unselectedIcon),
                     contentDescription = item.title,
                 ) }
             )
