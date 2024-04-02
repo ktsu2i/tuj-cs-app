@@ -21,6 +21,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -56,12 +58,12 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-sealed class BottomNavItem(var title: String, var icon: Int, var route: String) {
-    data object Forum: BottomNavItem("Forum", R.drawable.forum_icon, "forum")
-    data object Project: BottomNavItem("Projects", R.drawable.project_logo, "projects")
-    data object Internship: BottomNavItem("Internship", R.drawable.internship_logo, "internship")
-    data object Contact: BottomNavItem("Contact", R.drawable.contact_logo, "contact")
-    data object Profile: BottomNavItem("Profile", R.drawable.user_profile_icon, "profile")
+sealed class BottomNavItem(var title: String, var unselected_icon: Int, var selected_icon: Int, var route: String) {
+    data object Forum: BottomNavItem("Forum", R.drawable.unselected_forum_logo, R.drawable.forum_icon, "forum")
+    data object Project: BottomNavItem("Projects",R.drawable.unselected_project_logo , R.drawable.project_logo, "projects")
+    data object Internship: BottomNavItem("Internship", R.drawable.unselected_job_logo, R.drawable.job_logo, "internship")
+    data object Contact: BottomNavItem("Contact", R.drawable.unselected_contact_logo, R.drawable.contact_logo, "contact")
+    data object Profile: BottomNavItem("Profile", R.drawable.unselected_user_profile_logo, R.drawable.user_profile_icon, "profile")
 }
 
 @Composable
@@ -105,7 +107,10 @@ fun BottomNavBar(navController: NavController) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
                 selected = selectedItem == index,
-                label = { Text(text = item.title) },
+                label = { Text(
+                    text = item.title,
+//                    style = TextStyle(fontWeight = if (selectedItem == index) FontWeight.Bold else FontWeight.Normal)
+                    ) },
                 onClick = {
                     navController.navigate(item.route) {
                         navController.graph.startDestinationRoute?.let { route ->
@@ -125,7 +130,7 @@ fun BottomNavBar(navController: NavController) {
                     unselectedTextColor = Color(164, 30, 53),
                 ),
                 icon = { Icon(
-                    painter = painterResource(id = item.icon),
+                    painter = painterResource(if (selectedItem == index) item.selected_icon else item.unselected_icon),
                     contentDescription = item.title,
                 ) }
             )
