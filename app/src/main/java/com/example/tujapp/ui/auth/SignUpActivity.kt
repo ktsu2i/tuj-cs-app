@@ -5,14 +5,20 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -23,9 +29,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -39,17 +47,19 @@ class SignUpActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TujAppTheme {
-                SignUpScreen(onSignUpClicked = { email, password ->
-                    signUpWithEmailAndPassword(email, password)
-                }, onLoginClicked = { GoToLogin()})
+                SignUpScreen(
+                    onSignUpClicked = { email, password ->
+                        signUpWithEmailAndPassword(email, password)
+                    },
+                    navigateToSignInActivity = {
+                        val intent = Intent(this, SignInActivity::class.java)
+                        startActivity(intent)
+                    }
+                )
             }
         }
     }
 
-    private fun GoToLogin(){
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-    }
     private fun signUpWithEmailAndPassword(email: String, password: String) {
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
@@ -69,7 +79,7 @@ class SignUpActivity : ComponentActivity() {
 @Composable
 fun SignUpScreen(
     onSignUpClicked: (String, String) -> Unit,
-    onLoginClicked: () -> Unit
+    navigateToSignInActivity: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -111,16 +121,30 @@ fun SignUpScreen(
         Button(
             onClick = { onSignUpClicked(email, password) },
             modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(164, 30, 53)
+            )
         ) {
             Text("Sign up")
         }
-        // Login button
-        // Sign up button
-        Button(
-            onClick = { onLoginClicked() },
-            modifier = Modifier.fillMaxWidth(),
+
+        // Navigation to SignIn
+        Row(
+            modifier = Modifier.padding(8.dp)
         ) {
-            Text("Login")
+            Text(
+                text = "Don't have an account?",
+                fontSize = 14.sp
+            )
+            
+            Spacer(modifier = Modifier.width(4.dp))
+            
+            Text(
+                text = "Sign up",
+                fontSize = 14.sp,
+                color = Color(164, 30, 53),
+                modifier = Modifier.clickable { navigateToSignInActivity() }
+            )
         }
     }
 }
