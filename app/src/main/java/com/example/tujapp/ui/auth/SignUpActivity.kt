@@ -41,11 +41,15 @@ class SignUpActivity : ComponentActivity() {
             TujAppTheme {
                 SignUpScreen(onSignUpClicked = { email, password ->
                     signUpWithEmailAndPassword(email, password)
-                })
+                }, onLoginClicked = { GoToLogin()})
             }
         }
     }
 
+    private fun GoToLogin(){
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+    }
     private fun signUpWithEmailAndPassword(email: String, password: String) {
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
@@ -65,6 +69,7 @@ class SignUpActivity : ComponentActivity() {
 @Composable
 fun SignUpScreen(
     onSignUpClicked: (String, String) -> Unit,
+    onLoginClicked: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -108,6 +113,14 @@ fun SignUpScreen(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Text("Sign up")
+        }
+        // Login button
+        // Sign up button
+        Button(
+            onClick = { onLoginClicked() },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Login")
         }
     }
 }
