@@ -47,7 +47,7 @@ class SignUpActivity : ComponentActivity() {
     }
 
     private fun GoToLogin(){
-        val intent = Intent(this, MainActivity::class.java)
+        val intent = Intent(this, SignInActivity::class.java)
         startActivity(intent)
     }
     private fun signUpWithEmailAndPassword(email: String, password: String) {
