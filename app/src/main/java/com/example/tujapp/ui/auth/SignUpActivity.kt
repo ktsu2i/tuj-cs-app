@@ -52,6 +52,9 @@ class SignUpActivity : ComponentActivity() {
                 if (task.isSuccessful) {
                     val user = FirebaseAuth.getInstance().currentUser
                     Toast.makeText(baseContext, "You're registered!!!!", Toast.LENGTH_SHORT).show()
+
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
                 } else {
                     Toast.makeText(baseContext, "Failed to sign up", Toast.LENGTH_SHORT).show()
                 }

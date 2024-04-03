@@ -146,8 +146,6 @@ fun BottomNavBar(navController: NavController) {
 fun TujApp() {
     val navController = rememberNavController()
 
-    Text(text = "This is a tuj app")
-
     Scaffold(
         bottomBar = { BottomNavBar(navController = navController) }
     ) { interPadding ->
