@@ -56,6 +56,7 @@ class MainActivity : ComponentActivity() {
         val myRef = database.getReference("kaito")
 
         myRef.setValue("just testing")
+
     }
 }
 

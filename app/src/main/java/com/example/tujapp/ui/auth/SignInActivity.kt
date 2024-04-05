@@ -124,14 +124,14 @@ fun SignInScreen(
             modifier = Modifier.padding(8.dp)
         ) {
             Text(
-                text = "Already have an account?",
+                text = "Don't have an account?",
                 fontSize = 14.sp
             )
 
             Spacer(modifier = Modifier.width(4.dp))
 
             Text(
-                text = "Login",
+                text = "Sign Up",
                 fontSize = 14.sp,
                 color = Color(164, 30, 53),
                 modifier = Modifier.clickable { navigateToSignUpActivity() }

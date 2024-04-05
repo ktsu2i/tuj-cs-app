@@ -39,8 +39,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tujapp.MainActivity
+import com.example.tujapp.data.User
 import com.example.tujapp.ui.theme.TujAppTheme
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ktx.database
 
 class SignUpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +68,11 @@ class SignUpActivity : ComponentActivity() {
                 if (task.isSuccessful) {
                     val user = FirebaseAuth.getInstance().currentUser
                     Toast.makeText(baseContext, "You're registered!!!!", Toast.LENGTH_SHORT).show()
+
+                    val database = com.google.firebase.ktx.Firebase.database
+                    val myRef = database.getReference(user!!.uid)
+                    val newUser = User(UUID = user!!.uid, PrefContact = "", Username = user.email.toString(),Bio = "", Year = 0 )
+                    myRef.setValue(newUser)
 
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
@@ -133,14 +140,14 @@ fun SignUpScreen(
             modifier = Modifier.padding(8.dp)
         ) {
             Text(
-                text = "Don't have an account?",
+                text = "Already have an account?",
                 fontSize = 14.sp
             )
             
             Spacer(modifier = Modifier.width(4.dp))
             
             Text(
-                text = "Sign up",
+                text = "Login",
                 fontSize = 14.sp,
                 color = Color(164, 30, 53),
                 modifier = Modifier.clickable { navigateToSignInActivity() }
