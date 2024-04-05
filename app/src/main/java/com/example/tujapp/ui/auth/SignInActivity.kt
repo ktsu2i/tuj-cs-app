@@ -26,18 +26,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+
+import androidx.core.content.ContextCompat.startActivity
+
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
 import com.example.tujapp.MainActivity
 import com.google.firebase.auth.FirebaseAuth
 
 class SignInActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setContent {
+            SignInScreen(onLoginSuccessful = { goToMain() })
+        }
+    }
+
+    @Composable
+    fun SignInScreen(
+        onLoginSuccessful: () -> Unit,
+    ) {
+        var email = remember { mutableStateOf("") }
+        var password = remember { mutableStateOf("") }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+
         setContent { 
             SignInScreen(
                 navigateToSignUpActivity = {
@@ -115,8 +135,35 @@ fun SignInScreen(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(164, 30, 53)
             )
+
         ) {
             Text(text = "Sign in")
+
+            TextField(
+                value = email.value,
+                onValueChange = { email.value = it },
+                label = { Text(text = "Email") }
+            )
+
+            TextField(
+                value = password.value,
+                onValueChange = { password.value = it },
+                label = { Text(text = "Password") }
+            )
+
+            Button(onClick = {
+                FirebaseAuth.getInstance().signInWithEmailAndPassword(email.value, password.value)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            // after successfully logged in
+                            onLoginSuccessful()
+                        } else {
+                            // todo
+                        }
+                    }
+            }) {
+                Text(text = "Sign in")
+            }
         }
 
         // Navigation to SignUp
@@ -137,5 +184,10 @@ fun SignInScreen(
                 modifier = Modifier.clickable { navigateToSignUpActivity() }
             )
         }
+    }
+
+    private fun goToMain() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
     }
 }

@@ -60,6 +60,12 @@ class SignUpActivity : ComponentActivity() {
         }
     }
 
+
+    private fun GoToLogin(){
+        val intent = Intent(this, SignInActivity::class.java)
+        startActivity(intent)
+    }
+
     private fun signUpWithEmailAndPassword(email: String, password: String) {
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
