@@ -69,10 +69,11 @@ class SignUpActivity : ComponentActivity() {
                     val user = FirebaseAuth.getInstance().currentUser
                     Toast.makeText(baseContext, "You're registered!!!!", Toast.LENGTH_SHORT).show()
 
-                    val database = com.google.firebase.ktx.Firebase.database
-                    val myRef = database.getReference(user!!.uid)
+
+                    val database = com.google.firebase.ktx.Firebase.database.reference
                     val newUser = User(UUID = user!!.uid, PrefContact = "", Username = user.email.toString(),Bio = "", Year = 0 )
-                    myRef.setValue(newUser)
+                    database.child("users").child(user!!.uid).setValue(newUser)
+
 
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)

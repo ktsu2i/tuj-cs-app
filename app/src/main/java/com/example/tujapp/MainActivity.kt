@@ -29,6 +29,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.tujapp.data.User
 import com.example.tujapp.ui.ContactScreen
 import com.example.tujapp.ui.ForumScreen
 import com.example.tujapp.ui.InternshipScreen
@@ -52,10 +53,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        val database = com.google.firebase.ktx.Firebase.database
-        val myRef = database.getReference("kaito")
 
-        myRef.setValue("just testing")
 
     }
 }
