@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">tujApp</string>
+    <string name="app_name">tujapp</string>
+    <string name="q1">Today you are you, that is truer than true. There is no one alive, who is more youer than you.</string>
+    <string name="q2">Today I shall behave as if this is the day I will be remembered.</string>
+    <string name="a1">Dr Seuss</string>
+    <string name="a2">Dr Seuss</string>
+
+
 </resources>
