@@ -1,6 +1,7 @@
 package com.example.tujapp
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,8 +15,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -29,6 +32,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.tujapp.data.User
 import com.example.tujapp.ui.ContactScreen
 import com.example.tujapp.ui.ForumScreen
 import com.example.tujapp.ui.InternshipScreen
@@ -36,11 +40,21 @@ import com.example.tujapp.ui.ProfileScreen
 import com.example.tujapp.ui.ProjectScreen
 import com.example.tujapp.ui.auth.SignUpScreen
 import com.example.tujapp.ui.theme.TujAppTheme
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.database
 import com.google.firebase.database.ktx.database
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // fetch the current user id (uid from firebase)
+        val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+
         setContent {
             TujAppTheme {
                 // A surface container using the 'background' color from the theme
@@ -48,14 +62,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    TujApp()
+                    TujApp(currentUserId.toString())
                 }
             }
         }
-        val database = com.google.firebase.ktx.Firebase.database
-        val myRef = database.getReference("kaito")
-
-        myRef.setValue("just testing")
     }
 }
 
@@ -67,30 +77,30 @@ sealed class BottomNavItem(var title: String, var unselectedIcon: Int, var selec
     data object Profile: BottomNavItem("Profile", R.drawable.unselected_user_profile_logo, R.drawable.user_profile_icon, "profile")
 }
 
-@Composable
-fun NavigationGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = BottomNavItem.Forum.route) {
-        composable(BottomNavItem.Forum.route) {
-            ForumScreen()
-        }
-
-        composable(BottomNavItem.Project.route) {
-            ProjectScreen()
-        }
-
-        composable(BottomNavItem.Internship.route) {
-            InternshipScreen()
-        }
-
-        composable(BottomNavItem.Contact.route) {
-            ContactScreen()
-        }
-
-        composable(BottomNavItem.Profile.route) {
-            ProfileScreen()
-        }
-    }
-}
+//@Composable
+//fun NavigationGraph(navController: NavHostController) {
+//    NavHost(navController = navController, startDestination = BottomNavItem.Forum.route) {
+//        composable(BottomNavItem.Forum.route) {
+//            ForumScreen()
+//        }
+//
+//        composable(BottomNavItem.Project.route) {
+//            ProjectScreen()
+//        }
+//
+//        composable(BottomNavItem.Internship.route) {
+//            InternshipScreen()
+//        }
+//
+//        composable(BottomNavItem.Contact.route) {
+//            ContactScreen()
+//        }
+//
+//        composable(BottomNavItem.Profile.route) {
+//            ProfileScreen()
+//        }
+//    }
+//}
 
 @Composable
 fun BottomNavBar(navController: NavController) {
@@ -143,35 +153,53 @@ fun BottomNavBar(navController: NavController) {
 }
 
 @Composable
-fun TujApp() {
+fun TujApp(
+    currentUserId: String
+) {
     val navController = rememberNavController()
 
-    Scaffold(
-        bottomBar = { BottomNavBar(navController = navController) }
-    ) { interPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = BottomNavItem.Forum.route,
-            modifier = Modifier.padding(interPadding)
-        ) {
-            composable(BottomNavItem.Forum.route) {
-                ForumScreen()
-            }
+    val currentUserData = remember { mutableStateOf<User?>(null) }
 
-            composable(BottomNavItem.Project.route) {
-                ProjectScreen()
-            }
+    LaunchedEffect(currentUserId) {
+        val databaseRef = Firebase.database.reference
+        val currentUserRef = databaseRef.child("users").child(currentUserId)
 
-            composable(BottomNavItem.Internship.route) {
-                InternshipScreen()
-            }
+        currentUserRef.get().addOnSuccessListener { dataSnapshot ->
+            val currentUser = dataSnapshot.getValue(User::class.java)
+            currentUserData.value = currentUser
+        }.addOnFailureListener {
+            // if failed to fetch the current user
+        }
+    }
 
-            composable(BottomNavItem.Contact.route) {
-                ContactScreen()
-            }
+    if (currentUserData != null) {
+        Scaffold(
+            bottomBar = { BottomNavBar(navController = navController) }
+        ) { interPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = BottomNavItem.Forum.route,
+                modifier = Modifier.padding(interPadding)
+            ) {
+                composable(BottomNavItem.Forum.route) {
+                    ForumScreen(currentUserData.value)
+                }
 
-            composable(BottomNavItem.Profile.route) {
-                ProfileScreen()
+                composable(BottomNavItem.Project.route) {
+                    ProjectScreen(currentUserData.value)
+                }
+
+                composable(BottomNavItem.Internship.route) {
+                    InternshipScreen(currentUserData.value)
+                }
+
+                composable(BottomNavItem.Contact.route) {
+                    ContactScreen(currentUserData.value)
+                }
+
+                composable(BottomNavItem.Profile.route) {
+                    ProfileScreen(currentUserData.value)
+                }
             }
         }
     }

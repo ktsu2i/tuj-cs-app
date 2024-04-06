@@ -2,8 +2,11 @@ package com.example.tujapp.ui
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import com.example.tujapp.data.User
 
 @Composable
-fun ForumScreen() {
-    Text(text = "This is a forum screen")
+fun ForumScreen(
+    currentUser: User?
+) {
+    Text(text = "This is a forum screen. Welcome, ${currentUser?.name}!")
 }

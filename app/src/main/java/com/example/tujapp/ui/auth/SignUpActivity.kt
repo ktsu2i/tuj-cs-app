@@ -39,8 +39,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tujapp.MainActivity
+import com.example.tujapp.data.User
 import com.example.tujapp.ui.theme.TujAppTheme
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 
 class SignUpActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,8 +51,8 @@ class SignUpActivity : ComponentActivity() {
         setContent {
             TujAppTheme {
                 SignUpScreen(
-                    onSignUpClicked = { email, password ->
-                        signUpWithEmailAndPassword(email, password)
+                    onSignUpClicked = { name, email, password ->
+                        signUpWithEmailAndPassword(name, email, password)
                     },
                     navigateToSignInActivity = {
                         val intent = Intent(this, SignInActivity::class.java)
@@ -60,18 +63,16 @@ class SignUpActivity : ComponentActivity() {
         }
     }
 
-
-    private fun GoToLogin(){
-        val intent = Intent(this, SignInActivity::class.java)
-        startActivity(intent)
-    }
-
-    private fun signUpWithEmailAndPassword(email: String, password: String) {
+    private fun signUpWithEmailAndPassword(name: String, email: String, password: String) {
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = FirebaseAuth.getInstance().currentUser
-                    Toast.makeText(baseContext, "You're registered!!!!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(baseContext, "Successfully registered!", Toast.LENGTH_SHORT).show()
+
+                    val databaseRef = Firebase.database.reference
+                    val newUser = User(uid = user!!.uid, email = user.email.toString(), name = name)
+                    databaseRef.child("users").child(user!!.uid).setValue(newUser)
 
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
@@ -84,9 +85,10 @@ class SignUpActivity : ComponentActivity() {
 
 @Composable
 fun SignUpScreen(
-    onSignUpClicked: (String, String) -> Unit,
+    onSignUpClicked: (String, String, String) -> Unit,
     navigateToSignInActivity: () -> Unit
 ) {
+    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -98,6 +100,17 @@ fun SignUpScreen(
         Text(text = "Sign up", style = MaterialTheme.typography.bodyMedium)
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        // Input name
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text(text = "Name") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Input email address
         OutlinedTextField(
@@ -125,7 +138,7 @@ fun SignUpScreen(
 
         // Sign up button
         Button(
-            onClick = { onSignUpClicked(email, password) },
+            onClick = { onSignUpClicked(name, email, password) },
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(164, 30, 53)
@@ -139,14 +152,14 @@ fun SignUpScreen(
             modifier = Modifier.padding(8.dp)
         ) {
             Text(
-                text = "Don't have an account?",
+                text = "Already have an account?",
                 fontSize = 14.sp
             )
             
             Spacer(modifier = Modifier.width(4.dp))
             
             Text(
-                text = "Sign up",
+                text = "Login",
                 fontSize = 14.sp,
                 color = Color(164, 30, 53),
                 modifier = Modifier.clickable { navigateToSignInActivity() }

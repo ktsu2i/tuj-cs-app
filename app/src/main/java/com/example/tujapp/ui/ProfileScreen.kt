@@ -16,10 +16,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.tujapp.data.DataSource
+import com.example.tujapp.data.User
 import com.example.tujapp.model.profilePic
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    currentUser: User?
+) {
     //Text(text = "This is a profile screen")
     Column(){
         var profilePicsList:List<profilePic> = DataSource().loadProfilePic()

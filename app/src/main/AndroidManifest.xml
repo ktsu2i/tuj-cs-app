@@ -15,9 +15,9 @@
         android:theme="@style/Theme.TujApp"
         tools:targetApi="31">
         <activity android:name=".MainActivity" />
-        <activity android:name=".ui.auth.SignInActivity" />
+        <activity android:name=".ui.auth.SignUpActivity" />
         <activity
-            android:name=".ui.auth.SignUpActivity"
+            android:name=".ui.auth.SignInActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.TujApp">
