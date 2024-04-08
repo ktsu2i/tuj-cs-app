@@ -74,7 +74,10 @@ class SignUpActivity : ComponentActivity() {
                     val newUser = User(
                         uid = user?.uid,
                         email = user?.email.toString(),
-                        name = name
+                        name = name,
+                        //graduationYear = 0,
+                        //contact = "",
+                        //bio = "",
                     )
                     databaseRef.child("users").child(user!!.uid).setValue(newUser)
 
