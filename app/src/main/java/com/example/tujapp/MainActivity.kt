@@ -172,34 +172,32 @@ fun TujApp(
         }
     }
 
-    if (currentUserData != null) {
-        Scaffold(
-            bottomBar = { BottomNavBar(navController = navController) }
-        ) { interPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = BottomNavItem.Forum.route,
-                modifier = Modifier.padding(interPadding)
-            ) {
-                composable(BottomNavItem.Forum.route) {
-                    ForumScreen(currentUserData.value)
-                }
+    Scaffold(
+        bottomBar = { BottomNavBar(navController = navController) }
+    ) { interPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = BottomNavItem.Forum.route,
+            modifier = Modifier.padding(interPadding)
+        ) {
+            composable(BottomNavItem.Forum.route) {
+                ForumScreen(currentUserData.value)
+            }
 
-                composable(BottomNavItem.Project.route) {
-                    ProjectScreen(currentUserData.value)
-                }
+            composable(BottomNavItem.Project.route) {
+                ProjectScreen(currentUserData.value)
+            }
 
-                composable(BottomNavItem.Internship.route) {
-                    InternshipScreen(currentUserData.value)
-                }
+            composable(BottomNavItem.Internship.route) {
+                InternshipScreen(currentUserData.value)
+            }
 
-                composable(BottomNavItem.Contact.route) {
-                    ContactScreen(currentUserData.value)
-                }
+            composable(BottomNavItem.Contact.route) {
+                ContactScreen(currentUserData.value)
+            }
 
-                composable(BottomNavItem.Profile.route) {
-                    ProfileScreen(currentUserData.value)
-                }
+            composable(BottomNavItem.Profile.route) {
+                ProfileScreen(currentUserData.value)
             }
         }
     }

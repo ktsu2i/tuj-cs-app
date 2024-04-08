@@ -71,7 +71,11 @@ class SignUpActivity : ComponentActivity() {
                     Toast.makeText(baseContext, "Successfully registered!", Toast.LENGTH_SHORT).show()
 
                     val databaseRef = Firebase.database.reference
-                    val newUser = User(uid = user!!.uid, email = user.email.toString(), name = name)
+                    val newUser = User(
+                        uid = user?.uid,
+                        email = user?.email.toString(),
+                        name = name
+                    )
                     databaseRef.child("users").child(user!!.uid).setValue(newUser)
 
                     val intent = Intent(this, MainActivity::class.java)
