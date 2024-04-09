@@ -15,12 +15,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +38,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.tujapp.R
 import com.example.tujapp.data.Internship
 import com.example.tujapp.data.User
@@ -50,15 +53,21 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun ContactScreen(
-    currentUser: User?
+    currentUser: User?,
+    navController: NavController
 ) {
     val usersFlow = remember { MutableStateFlow<List<User>>(emptyList()) }
+    val searchQuery = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         getAllUsers(usersFlow)
     }
 
-    val users = usersFlow.collectAsState().value.sortedBy{ it.name?.lowercase() }
+    val users = usersFlow.collectAsState().value
+        .filter { user ->
+            user.name?.lowercase()?.contains(searchQuery.value.lowercase()) ?: false
+        }
+        .sortedBy { it.name?.lowercase() }
 
     Scaffold { innerPadding ->
         Column (
@@ -66,10 +75,28 @@ fun ContactScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(innerPadding)
         ) {
+            // search bar
+            OutlinedTextField(
+                value = searchQuery.value,
+                onValueChange = { searchQuery.value = it },
+                label = {
+                        Row (
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.Search, contentDescription = "search", Modifier.size(24.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(text = "Search")
+                        }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            )
+
             // displays a list of posts
             LazyColumn {
                 items(users) { user ->
-                    UserItem(user = user)
+                    UserItem(user = user, navController = navController)
                 }
             }
         }
@@ -96,22 +123,9 @@ fun getAllUsers(
 
 @Composable
 fun UserItem(
-    user: User
+    user: User,
+    navController: NavController,
 ) {
-    val userData = remember { mutableStateOf<User?>(null) }
-
-    LaunchedEffect (user.uid) {
-        val databaseRef = Firebase.database.reference
-        val userRef = databaseRef.child("users").child(user.uid.toString())
-
-        userRef.get().addOnSuccessListener { dataSnapshot ->
-            val user = dataSnapshot.getValue(User::class.java)
-            userData.value = user
-        }.addOnFailureListener {
-            // if failed to fetch the current user
-        }
-    }
-
     Card (
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -123,7 +137,7 @@ fun UserItem(
         Column (
             modifier = Modifier.padding(16.dp)
         ) {
-            userData.value?.let { user ->
+            user.let { user ->
                 Row (
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -139,21 +153,22 @@ fun UserItem(
                     Spacer(modifier = Modifier.width(12.dp))
 
                     Text(
-                        text = userData.value?.name.toString(),
+                        text = user.name.toString(),
                         style = MaterialTheme.typography.titleMedium
                     )
+
                     Spacer(modifier = Modifier.weight(1f))
+
                     OutlinedButton(
                         onClick = {
-                        // Navigate to a screen for their profile
+                            // Navigate to a screen for their profile
+                            navController.navigate("contacts/${user.uid}")
                         }
                     ) {
-                        Text(text = "View Profile")
+                        Text(text = "View Profile", color = Color(164, 30, 53),)
                     }
                 }
             }
-
-
         }
     }
 }
