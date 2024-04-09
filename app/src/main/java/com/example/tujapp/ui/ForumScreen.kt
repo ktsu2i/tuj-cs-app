@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -48,8 +49,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.tujapp.R
 import com.example.tujapp.data.Post
@@ -348,7 +351,7 @@ fun PostItem(
             Spacer(modifier = Modifier.height(8.dp))
 
             Row (
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(
                     onClick = {
@@ -359,11 +362,16 @@ fun PostItem(
                     Icon(
                         imageVector = if (likedByUser) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         contentDescription = "Like",
-                        tint = if (likedByUser) Color.Red else Color.Gray
+                        tint = if (likedByUser) Color.Red else Color.Gray,
+                        modifier = Modifier.size(22.dp)
                     )
                 }
 
-                Text(text = "$likesCount")
+                Text(
+                    text = "$likesCount likes",
+                    color = Color.Gray,
+                    style = TextStyle(fontSize = 16.sp)
+                )
 
                 IconButton(
                     onClick = {
@@ -371,12 +379,18 @@ fun PostItem(
                     }
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Send,
-                        contentDescription = "Reply"
+                        imageVector = Icons.Filled.Send,
+                        tint = Color.Gray,
+                        contentDescription = "Reply",
+                        modifier = Modifier.size(22.dp)
                     )
                 }
 
-                Text(text = "$repliesCount")
+                Text(
+                    text = "$repliesCount replies",
+                    color = Color.Gray,
+                    style = TextStyle(fontSize = 16.sp)
+                )
             }
         }
     }
