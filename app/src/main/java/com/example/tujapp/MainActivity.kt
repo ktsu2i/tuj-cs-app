@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -14,6 +17,8 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,6 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -105,8 +111,9 @@ sealed class BottomNavItem(var title: String, var unselectedIcon: Int, var selec
 //    }
 //}
 
+
 @Composable
-fun BottomNavBar(navController: NavController) {
+fun BottomNavBar (navController: NavController) {
     var selectedItem by remember { mutableIntStateOf(0) }
 
     val items = listOf(
@@ -156,6 +163,7 @@ fun BottomNavBar(navController: NavController) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TujApp(
     currentUserId: String
@@ -178,6 +186,20 @@ fun TujApp(
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.White,
+                ),
+                title = {
+                    Image(
+                        painter = painterResource(id = R.drawable.logo2),
+                        contentDescription = "logo",
+                        modifier = Modifier.size(60.dp),
+                    )
+                }
+            )
+        },
         bottomBar = { BottomNavBar(navController = navController) }
     ) { interPadding ->
         NavHost(
