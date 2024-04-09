@@ -4,8 +4,11 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.provider.MediaStore
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -46,12 +49,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.tujapp.data.DataSource
 import com.example.tujapp.data.User
 import com.example.tujapp.model.profilePic
 import com.example.tujapp.ui.auth.SignInActivity
+
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.FirebaseDatabase
@@ -59,6 +64,7 @@ import com.google.firebase.database.database
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+
 import com.google.firebase.storage.ktx.storage
 
 
@@ -267,56 +273,3 @@ fun uploadImageToFirebase(
 
 //    userRef.updateChildren(mapOf("imageUrl" to imageUri.toString()))
 }
-
-
-//fun uploadProfileImageAndSaveProfile(
-//    userName: String,
-//    imageUri: Uri,
-//    currentUser: User?
-//) {
-//    val storageRef = Firebase.storage.reference
-//    val userImageRef = storageRef.child("images/${currentUser?.uid}/profile.jpg")
-//
-//    userImageRef.putFile(imageUri).addOnSuccessListener { taskSnapshot ->
-//        taskSnapshot.storage.downloadUrl.addOnSuccessListener { downloadUri ->
-//            val imageUrl = downloadUri.toString()
-//
-////            updateProfileWithImage(currentUser?.uid.toString(), userName, imageUrl)
-//        }
-//    }
-//}
-//
-//
-//private fun uploadImageToFirebase(thisContext: Context, imageUri: Uri) {
-//    // Implement your logic to upload the image to Firebase or any other storage service here
-//    // You can use Firebase Storage to upload the image
-//
-//    var storageRef = FirebaseStorage.getInstance()
-//    storageRef.getReference("images").child(System.currentTimeMillis().toString())
-//        .putFile(imageUri)
-//        .addOnSuccessListener { task ->
-//            task.metadata!!.reference!!.downloadUrl
-//                .addOnSuccessListener {
-//                    Toast.makeText(thisContext, "Successful 1", Toast.LENGTH_SHORT).show()
-//                    val userId = FirebaseAuth.getInstance().currentUser!!.uid
-//                    val mapImage = mapOf(
-//                        "url" to it.toString()
-//                    )
-//                    val databaseReference =
-//                        FirebaseDatabase.getInstance().getReference("userImages")
-//                    databaseReference.child(userId).setValue(mapImage)
-//                        .addOnSuccessListener {
-//                            Toast.makeText(thisContext, "Successful 2", Toast.LENGTH_SHORT).show()
-//                        }
-//                        .addOnFailureListener { error ->
-//                            Toast.makeText(thisContext, it.toString(), Toast.LENGTH_SHORT).show()
-//                        }
-//
-//
-//                }.addOnFailureListener{
-//                    Toast.makeText(thisContext, "failure", Toast.LENGTH_SHORT).show()
-//                }
-//        }.addOnFailureListener{
-//            Toast.makeText(thisContext, "failure 2", Toast.LENGTH_SHORT).show()
-//        }
-//}
