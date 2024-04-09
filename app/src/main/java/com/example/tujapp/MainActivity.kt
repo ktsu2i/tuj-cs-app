@@ -56,6 +56,7 @@ import com.example.tujapp.ui.InternshipScreen
 import com.example.tujapp.ui.PostScreen
 import com.example.tujapp.ui.ProfileScreen
 import com.example.tujapp.ui.ProjectScreen
+import com.example.tujapp.ui.UserScreen
 import com.example.tujapp.ui.auth.SignUpScreen
 import com.example.tujapp.ui.theme.TujAppTheme
 import com.google.firebase.Firebase
@@ -271,7 +272,12 @@ fun TujApp(
 
             composable(BottomNavItem.Contact.route) {
                 showBackButton = false
-                ContactScreen(currentUserData.value)
+                ContactScreen(currentUserData.value, navController)
+            }
+
+            composable("contacts/{userId}", arguments = listOf(navArgument("userId") { type = NavType.StringType })) { navBackStackEntry ->
+                showBackButton = true
+                UserScreen(userId = navBackStackEntry.arguments?.getString("userId") ?: "", navController = navController)
             }
 
             composable(BottomNavItem.Profile.route) {
