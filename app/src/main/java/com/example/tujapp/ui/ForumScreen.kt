@@ -1,7 +1,9 @@
 package com.example.tujapp.ui
 
+import android.text.format.DateUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +21,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -44,7 +48,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.tujapp.R
 import com.example.tujapp.data.Post
 import com.example.tujapp.data.User
@@ -59,7 +65,8 @@ import kotlinx.coroutines.flow.asStateFlow
 
 @Composable
 fun ForumScreen(
-    currentUser: User?
+    currentUser: User?,
+    navController: NavController
 ) {
     val postsFlow = remember { MutableStateFlow<List<Post>>(emptyList()) }
 
@@ -68,6 +75,7 @@ fun ForumScreen(
     }
 
     val posts by postsFlow.collectAsState()
+    var newPostTitle by remember { mutableStateOf("") }
     var newPostContent by remember { mutableStateOf("") }
 
     var showDialog by remember { mutableStateOf(false) }
@@ -92,7 +100,7 @@ fun ForumScreen(
             // displays a list of posts
             LazyColumn {
                 items(posts.reversed()) { post ->
-                    PostItem(post = post)
+                    PostItem(post = post, currentUserId = currentUser?.uid.toString(), navController)
                 }
             }
 
@@ -103,19 +111,28 @@ fun ForumScreen(
                     onDismissRequest = { showDialog = false },
                     title = { Text(text = "New Post") },
                     text = {
-                        OutlinedTextField (
-                            value = newPostContent, 
-                            onValueChange = { newPostContent = it },
-                            label = { Text(text = "Write something...") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Column {
+                            OutlinedTextField (
+                                value = newPostTitle,
+                                onValueChange = { newPostTitle = it },
+                                label = { Text(text = "Post title") },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            OutlinedTextField (
+                                value = newPostContent,
+                                onValueChange = { newPostContent = it },
+                                label = { Text(text = "Write something...") },
+                                modifier = Modifier.fillMaxWidth()
+                            )       
+                        }
                     },
                     confirmButton = {
                         TextButton (
                             onClick = {
                                 // add a post
                                 if (newPostContent.isNotEmpty() && currentUser != null) {
-                                    addPost(currentUser.uid.toString(), newPostContent)
+                                    addPost(currentUser.uid.toString(), newPostTitle, newPostContent)
                                     newPostContent = ""
                                     showDialog = false
                                 }
@@ -162,23 +179,69 @@ fun getAllPosts(
 
 fun addPost(
     userId: String,
+    title: String,
     content: String,
 ) {
     val databaseRef = Firebase.database.reference
     val newPostRef = databaseRef.child("posts").push()
-    val newPost = Post(userId, content)
+    val newPostId = newPostRef.key
+    val newPost = Post(newPostId, userId, title, content)
     newPostRef.setValue(newPost)
 }
 
 
+fun toggleLike(
+    postId: String,
+    userId: String,
+) {
+    val databaseRef = Firebase.database.reference
+    val likesRef = databaseRef.child("likes").child(postId).child(userId)
+
+    likesRef.addListenerForSingleValueEvent(object: ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            if (snapshot.exists()) {
+                likesRef.removeValue()
+            } else {
+                likesRef.setValue(true)
+            }
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            // error handling
+        }
+    })
+}
+
+
+fun formatDate(
+    createdAt: Long?,
+): String {
+    if (createdAt == null) {
+        return "N/A"
+    }
+
+    return DateUtils.getRelativeTimeSpanString(
+        createdAt,
+        System.currentTimeMillis(),
+        DateUtils.MINUTE_IN_MILLIS
+    ).toString()
+}
+
 @Composable
 fun PostItem(
-    post: Post
+    post: Post,
+    currentUserId: String,
+    navController: NavController
 ) {
     val userData = remember { mutableStateOf<User?>(null) }
+    var likedByUser by remember { mutableStateOf(false) }
+    var likesCount by remember { mutableStateOf(0) }
+    var repliesCount by remember { mutableStateOf(0) }
 
-    LaunchedEffect (post.userId) {
+    LaunchedEffect (post.userId, post.postId) {
         val databaseRef = Firebase.database.reference
+
+        // fetch the author (user who posted it)
         val userRef = databaseRef.child("users").child(post.userId)
 
         userRef.get().addOnSuccessListener { dataSnapshot ->
@@ -187,6 +250,39 @@ fun PostItem(
         }.addOnFailureListener {
             // if failed to fetch the current user
         }
+
+        // fetch the like boolean (whether the current user liked the post or not)
+        val likesRef = databaseRef.child("likes").child(post.postId.toString())
+
+        likesRef.child(currentUserId).get().addOnSuccessListener { dataSnapshot ->
+            likedByUser = dataSnapshot.exists()
+        }
+
+        // fetch the likes count
+        likesRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                likesCount = snapshot.childrenCount.toInt()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // error handling
+                likesCount = 0
+            }
+        })
+
+        // fetch the replies count
+        val repliesRef = databaseRef.child("posts").child(post.postId.toString()).child("replies")
+
+        repliesRef.addValueEventListener(object: ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                repliesCount = snapshot.childrenCount.toInt()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // error handling
+                repliesCount = 0
+            }
+        })
     }
 
     Card (
@@ -194,7 +290,11 @@ fun PostItem(
             containerColor = Color.White
         ),
         shape = RectangleShape,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                navController.navigate("post/${post.postId}")
+            },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column (
@@ -213,15 +313,31 @@ fun PostItem(
                         modifier = Modifier.size(30.dp)
                     )
 
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
 
-                    Text(
-                        text = userData.value?.name.toString(),
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    Column {
+                        Text(
+                            text = userData.value?.name.toString(),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+
+                        Text(
+                            text = formatDate(post.createdAt),
+                            color = Color.Gray,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
             }
 
+            Spacer(modifier = Modifier.height(4.dp))
+            
+            Text(
+                text = "${post.title}",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
@@ -231,36 +347,37 @@ fun PostItem(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-//            Row (
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                IconButton(
-//                    onClick = {
-//                        // todo
-//                    }
-//                ) {
-//                    Icon(Icons.Default.Favorite, contentDescription = "Like")
-//
-//                    Text(text = "${post.likes} likes")
-//
-//                    Spacer(modifier = Modifier.width(8.dp))
-//
-//                    TextButton(
-//                        onClick = {
-//                            // todo
-//                        }
-//                    ) {
-//                        Text("Reply")
-//                    }
-//                }
-//
-//                post.replies.forEach { reply ->
-//                    Text(
-//                        text = "${reply.userId}: ${reply.content}",
-//                        style = MaterialTheme.typography.bodySmall
-//                    )
-//                }
-//            }
+            Row (
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = {
+                        toggleLike(post.postId.toString(), currentUserId)
+                        likedByUser = !likedByUser
+                    }
+                ) {
+                    Icon(
+                        imageVector = if (likedByUser) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = "Like",
+                        tint = if (likedByUser) Color.Red else Color.Gray
+                    )
+                }
+
+                Text(text = "$likesCount")
+
+                IconButton(
+                    onClick = {
+                        // todo
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Send,
+                        contentDescription = "Reply"
+                    )
+                }
+
+                Text(text = "$repliesCount")
+            }
         }
     }
 }

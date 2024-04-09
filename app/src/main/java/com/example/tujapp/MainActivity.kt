@@ -29,13 +29,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.tujapp.data.User
 import com.example.tujapp.ui.ContactScreen
 import com.example.tujapp.ui.ForumScreen
 import com.example.tujapp.ui.InternshipScreen
+import com.example.tujapp.ui.PostScreen
 import com.example.tujapp.ui.ProfileScreen
 import com.example.tujapp.ui.ProjectScreen
 import com.example.tujapp.ui.auth.SignUpScreen
@@ -138,15 +141,16 @@ fun BottomNavBar(navController: NavController) {
                 },
                 colors = NavigationBarItemDefaults.colors(
                     indicatorColor = Color.White,
-                    selectedIconColor = Color(164, 30, 53),
-                    selectedTextColor = Color(164, 30, 53),
-                    unselectedIconColor = Color(164, 30, 53),
-                    unselectedTextColor = Color(164, 30, 53),
+//                    selectedIconColor = Color(164, 30, 53),
+//                    selectedTextColor = Color(164, 30, 53),
+//                    unselectedIconColor = Color(164, 30, 53),
+//                    unselectedTextColor = Color(164, 30, 53),
                 ),
                 icon = { Icon(
                     painter = painterResource(if (selectedItem == index) item.selectedIcon else item.unselectedIcon),
                     contentDescription = item.title,
-                ) }
+                    )
+                }
             )
         }
     }
@@ -158,6 +162,7 @@ fun TujApp(
 ) {
     val navController = rememberNavController()
 
+    // fetch the current user
     val currentUserData = remember { mutableStateOf<User?>(null) }
 
     LaunchedEffect(currentUserId) {
@@ -181,7 +186,11 @@ fun TujApp(
             modifier = Modifier.padding(interPadding)
         ) {
             composable(BottomNavItem.Forum.route) {
-                ForumScreen(currentUserData.value)
+                ForumScreen(currentUserData.value, navController)
+            }
+
+            composable("post/{postId}", arguments = listOf(navArgument("postId") { type = NavType.StringType })) { navBackStackEntry ->
+                PostScreen(currentUser = currentUserData.value, postId = navBackStackEntry.arguments?.getString("postId") ?: "", navController)
             }
 
             composable(BottomNavItem.Project.route) {
