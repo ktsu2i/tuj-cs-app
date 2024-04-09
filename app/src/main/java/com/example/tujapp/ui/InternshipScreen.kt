@@ -273,36 +273,8 @@ fun InternshipItem(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-//            Row (
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                IconButton(
-//                    onClick = {
-//                        // todo
-//                    }
-//                ) {
-//                    Icon(Icons.Default.Favorite, contentDescription = "Like")
-//
-//                    Text(text = "${post.likes} likes")
-//
-//                    Spacer(modifier = Modifier.width(8.dp))
-//
-//                    TextButton(
-//                        onClick = {
-//                            // todo
-//                        }
-//                    ) {
-//                        Text("Reply")
-//                    }
-//                }
-//
-//                post.replies.forEach { reply ->
-//                    Text(
-//                        text = "${reply.userId}: ${reply.content}",
-//                        style = MaterialTheme.typography.bodySmall
-//                    )
-//                }
-//            }
+            //Internship posts don't need likes or replies
+            //Sure it *could* be useful, but its not entirely necessary is it?
         }
     }
 }
