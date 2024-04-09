@@ -1,5 +1,6 @@
 package com.example.tujapp.ui
 
+import android.net.Uri
 import android.text.format.DateUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -45,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
@@ -54,6 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.example.tujapp.R
 import com.example.tujapp.data.Post
 import com.example.tujapp.data.User
@@ -63,6 +66,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -241,6 +245,8 @@ fun PostItem(
     var likesCount by remember { mutableStateOf(0) }
     var repliesCount by remember { mutableStateOf(0) }
 
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
     LaunchedEffect (post.userId, post.postId) {
         val databaseRef = Firebase.database.reference
 
@@ -250,6 +256,13 @@ fun PostItem(
         userRef.get().addOnSuccessListener { dataSnapshot ->
             val user = dataSnapshot.getValue(User::class.java)
             userData.value = user
+
+            // fetch the user profile image
+            val storageRef = Firebase.storage.reference.child("users/${userData.value?.uid.toString()}/profile.jpg")
+
+            storageRef.downloadUrl.addOnSuccessListener { uri ->
+                imageUri = uri
+            }
         }.addOnFailureListener {
             // if failed to fetch the current user
         }
@@ -308,12 +321,9 @@ fun PostItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
-                        painter = painterResource(
-                            id = user.profileImageId ?: R.drawable.user_profile_icon
-                        ),
+                        painter = if (imageUri == null) painterResource(id = R.drawable.user_profile_icon) else rememberImagePainter(imageUri.toString()),
                         contentDescription = "user profile",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(30.dp)
+                        modifier = Modifier.size(30.dp).clip(CircleShape)
                     )
 
                     Spacer(modifier = Modifier.width(6.dp))
@@ -368,7 +378,7 @@ fun PostItem(
                 }
 
                 Text(
-                    text = "$likesCount likes",
+                    text = "$likesCount",
                     color = Color.Gray,
                     style = TextStyle(fontSize = 16.sp)
                 )
@@ -387,7 +397,7 @@ fun PostItem(
                 }
 
                 Text(
-                    text = "$repliesCount replies",
+                    text = "$repliesCount",
                     color = Color.Gray,
                     style = TextStyle(fontSize = 16.sp)
                 )

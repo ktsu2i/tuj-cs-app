@@ -1,5 +1,6 @@
 package com.example.tujapp.ui
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
@@ -40,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
@@ -47,6 +50,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.example.tujapp.R
 import com.example.tujapp.data.Post
 import com.example.tujapp.data.Reply
@@ -57,8 +61,9 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun PostScreen (
     currentUser: User?,
@@ -72,6 +77,10 @@ fun PostScreen (
 
     val userData = remember { mutableStateOf<User?>(null) }
     val postData = remember { mutableStateOf<Post?>(null) }
+
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    var imageUri2 by remember { mutableStateOf<Uri?>(null) }
+
 
     LaunchedEffect (postId) {
         val databaseRef = Firebase.database.reference
@@ -113,6 +122,20 @@ fun PostScreen (
                 // error handling
             }
         })
+
+        // fetch the current user profile image
+        val storageRef = Firebase.storage.reference.child("users/${currentUser?.uid.toString()}/profile.jpg")
+
+        storageRef.downloadUrl.addOnSuccessListener { uri ->
+            imageUri = uri
+        }
+
+        // fetch the user profile image
+        val storageRef2 = Firebase.storage.reference.child("users/${userData.value?.uid.toString()}/profile.jpg")
+
+        storageRef2.downloadUrl.addOnSuccessListener { uri ->
+            imageUri2 = uri
+        }
     }
 
     Scaffold (
@@ -122,12 +145,9 @@ fun PostScreen (
                 modifier = Modifier.height(70.dp)
             ) {
                 Image (
-                    painter = painterResource(
-                        id = currentUser?.profileImageId ?: R.drawable.user_profile_icon
-                    ),
+                    painter = if (imageUri == null) painterResource(id = R.drawable.user_profile_icon) else rememberImagePainter(imageUri.toString()),
                     contentDescription = "user profile",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(40.dp).clip(CircleShape)
                 )
                 
                 Spacer(modifier = Modifier.width(4.dp))
@@ -179,12 +199,9 @@ fun PostScreen (
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
-                                painter = painterResource(
-                                    id = user.profileImageId ?: R.drawable.user_profile_icon
-                                ),
+                                painter = if (imageUri == null) painterResource(id = R.drawable.user_profile_icon) else rememberImagePainter(imageUri.toString()),
                                 contentDescription = "user profile",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.size(25.dp)
+                                modifier = Modifier.size(25.dp).clip(CircleShape)
                             )
 
                             Spacer(modifier = Modifier.width(6.dp))
@@ -219,26 +236,26 @@ fun PostScreen (
                         style = MaterialTheme.typography.bodyLarge
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+//                    Spacer(modifier = Modifier.height(8.dp))
 
-                    Row (
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        IconButton(
-                            onClick = {
-                                toggleLike(postId, currentUser?.uid.toString())
-                                likedByUser = !likedByUser
-                            }
-                        ) {
-                            Icon(
-                                imageVector = if (likedByUser) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                                contentDescription = "Like",
-                                tint = if (likedByUser) Color.Red else Color.Gray
-                            )
-                        }
-
-                        Text(text = "$likesCount")
-                    }
+//                    Row (
+//                        verticalAlignment = Alignment.CenterVertically
+//                    ) {
+//                        IconButton(
+//                            onClick = {
+//                                toggleLike(postId, currentUser?.uid.toString())
+//                                likedByUser = !likedByUser
+//                            }
+//                        ) {
+//                            Icon(
+//                                imageVector = if (likedByUser) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+//                                contentDescription = "Like",
+//                                tint = if (likedByUser) Color.Red else Color.Gray
+//                            )
+//                        }
+//
+//                        Text(text = "$likesCount")
+//                    }
                 }
             }
             
@@ -297,8 +314,9 @@ fun ReplyItem(
     reply: Reply
 ) {
     val userData = remember { mutableStateOf<User?>(null) }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
 
-    LaunchedEffect(reply.userId) {
+    LaunchedEffect(reply.userId, userData?.value?.name) {
         val databaseRef = com.google.firebase.Firebase.database.reference
         val userRef = databaseRef.child("users").child(reply.userId)
 
@@ -307,6 +325,12 @@ fun ReplyItem(
             userData.value = user
         }.addOnFailureListener {
             // if failed to fetch the current user
+        }
+
+        val storageRef = Firebase.storage.reference.child("users/${userData?.value?.uid.toString()}/profile.jpg")
+
+        storageRef.downloadUrl.addOnSuccessListener { uri ->
+            imageUri = uri
         }
     }
 
@@ -323,12 +347,9 @@ fun ReplyItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(
-                        id = userData.value?.profileImageId ?: R.drawable.user_profile_icon
-                    ),
+                    painter = if (imageUri == null) painterResource(id = R.drawable.user_profile_icon) else rememberImagePainter(imageUri.toString()),
                     contentDescription = "user profile",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.size(25.dp)
+                    modifier = Modifier.size(25.dp).clip(CircleShape)
                 )
 
                 Spacer(modifier = Modifier.width(6.dp))

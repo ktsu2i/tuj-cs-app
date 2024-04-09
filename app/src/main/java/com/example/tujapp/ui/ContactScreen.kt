@@ -1,5 +1,6 @@
 package com.example.tujapp.ui
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,10 +29,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
@@ -39,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.rememberImagePainter
 import com.example.tujapp.R
 import com.example.tujapp.data.Internship
 import com.example.tujapp.data.User
@@ -47,6 +52,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.flow.MutableStateFlow
 
 
@@ -126,6 +132,17 @@ fun UserItem(
     user: User,
     navController: NavController,
 ) {
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+
+    LaunchedEffect(Unit) {
+        // fetch the user profile image
+        val storageRef = com.google.firebase.ktx.Firebase.storage.reference.child("users/${user.uid.toString()}/profile.jpg")
+
+        storageRef.downloadUrl.addOnSuccessListener { uri ->
+            imageUri = uri
+        }
+    }
+
     Card (
         colors = CardDefaults.cardColors(
             containerColor = Color.White
@@ -142,12 +159,9 @@ fun UserItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
-                        painter = painterResource(
-                            id = user.profileImageId ?: R.drawable.user_profile_icon
-                        ),
+                        painter = if (imageUri == null) painterResource(id = R.drawable.user_profile_icon) else rememberImagePainter(imageUri.toString()),
                         contentDescription = "user profile",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(30.dp)
+                        modifier = Modifier.size(30.dp).clip(CircleShape)
                     )
 
                     Spacer(modifier = Modifier.width(12.dp))

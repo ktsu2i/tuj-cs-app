@@ -55,7 +55,6 @@ import com.example.tujapp.ui.ForumScreen
 import com.example.tujapp.ui.InternshipScreen
 import com.example.tujapp.ui.PostScreen
 import com.example.tujapp.ui.ProfileScreen
-import com.example.tujapp.ui.ProjectScreen
 import com.example.tujapp.ui.UserScreen
 import com.example.tujapp.ui.auth.SignUpScreen
 import com.example.tujapp.ui.theme.TujAppTheme
@@ -90,36 +89,10 @@ class MainActivity : ComponentActivity() {
 
 sealed class BottomNavItem(var title: String, var unselectedIcon: Int, var selectedIcon: Int, var route: String) {
     data object Forum: BottomNavItem("Forum", R.drawable.unselected_forum_logo, R.drawable.forum_icon, "forum")
-    data object Project: BottomNavItem("Projects",R.drawable.unselected_project_logo , R.drawable.project_logo, "projects")
-    data object Internship: BottomNavItem("Internship", R.drawable.unselected_job_logo, R.drawable.job_logo, "internship")
+    data object Internship: BottomNavItem("Internships", R.drawable.unselected_job_logo, R.drawable.job_logo, "internships")
     data object Contact: BottomNavItem("Contact", R.drawable.unselected_contact_logo, R.drawable.contact_logo, "contact")
     data object Profile: BottomNavItem("Profile", R.drawable.unselected_user_profile_logo, R.drawable.user_profile_icon, "profile")
 }
-
-//@Composable
-//fun NavigationGraph(navController: NavHostController) {
-//    NavHost(navController = navController, startDestination = BottomNavItem.Forum.route) {
-//        composable(BottomNavItem.Forum.route) {
-//            ForumScreen()
-//        }
-//
-//        composable(BottomNavItem.Project.route) {
-//            ProjectScreen()
-//        }
-//
-//        composable(BottomNavItem.Internship.route) {
-//            InternshipScreen()
-//        }
-//
-//        composable(BottomNavItem.Contact.route) {
-//            ContactScreen()
-//        }
-//
-//        composable(BottomNavItem.Profile.route) {
-//            ProfileScreen()
-//        }
-//    }
-//}
 
 
 @Composable
@@ -128,7 +101,6 @@ fun BottomNavBar (navController: NavController) {
 
     val items = listOf(
         BottomNavItem.Forum,
-        BottomNavItem.Project,
         BottomNavItem.Internship,
         BottomNavItem.Contact,
         BottomNavItem.Profile,
@@ -260,11 +232,6 @@ fun TujApp(
                 PostScreen(currentUser = currentUserData.value, postId = navBackStackEntry.arguments?.getString("postId") ?: "", navController)
             }
 
-            composable(BottomNavItem.Project.route) {
-                showBackButton = false
-                ProjectScreen(currentUserData.value)
-            }
-
             composable(BottomNavItem.Internship.route) {
                 showBackButton = false
                 InternshipScreen(currentUserData.value)
@@ -282,7 +249,7 @@ fun TujApp(
 
             composable(BottomNavItem.Profile.route) {
                 showBackButton = false
-                ProfileScreen(currentUserData.value)
+                ProfileScreen(currentUserData.value, navController)
             }
         }
     }

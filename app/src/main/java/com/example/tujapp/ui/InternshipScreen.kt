@@ -39,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
@@ -46,7 +47,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberImagePainter
 import com.example.tujapp.R
 import com.example.tujapp.data.Internship
 import com.example.tujapp.data.Post
@@ -56,6 +61,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
@@ -201,6 +207,7 @@ fun InternshipItem(
     internship: Internship
 ) {
     val userData = remember { mutableStateOf<User?>(null) }
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
 
     LaunchedEffect (internship.userId) {
         val databaseRef = Firebase.database.reference
@@ -209,6 +216,13 @@ fun InternshipItem(
         userRef.get().addOnSuccessListener { dataSnapshot ->
             val user = dataSnapshot.getValue(User::class.java)
             userData.value = user
+
+            // fetch the user profile image
+            val storageRef = Firebase.storage.reference.child("users/${userData.value?.uid.toString()}/profile.jpg")
+
+            storageRef.downloadUrl.addOnSuccessListener { uri ->
+                imageUri = uri
+            }
         }.addOnFailureListener {
             // if failed to fetch the current user
         }
@@ -230,12 +244,9 @@ fun InternshipItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Image(
-                        painter = painterResource(
-                            id = user.profileImageId ?: R.drawable.user_profile_icon
-                        ),
+                        painter = if (imageUri == null) painterResource(id = R.drawable.user_profile_icon) else rememberImagePainter(imageUri.toString()),
                         contentDescription = "user profile",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.size(30.dp)
+                        modifier = Modifier.size(30.dp).clip(CircleShape)
                     )
 
                     Spacer(modifier = Modifier.width(4.dp))
@@ -259,16 +270,16 @@ fun InternshipItem(
             val localUriHandler = LocalUriHandler.current
             ClickableText(
                 text = AnnotatedString(internship.link),
-                style = MaterialTheme.typography.bodyMedium
-            )
-            {
+//                style = MaterialTheme.typography.bodyMedium
+                style = TextStyle(color = Color.Blue, textDecoration = TextDecoration.Underline)
+            ) {
                 localUriHandler.openUri(internship.link)
             }
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
                 text = internship.description,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
