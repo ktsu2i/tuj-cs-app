@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import com.example.tujapp.R
 import com.example.tujapp.data.Internship
@@ -57,7 +58,7 @@ fun ContactScreen(
         getAllUsers(usersFlow)
     }
 
-    val users = usersFlow.collectAsState().value.sortedByDescending { it.name }
+    val users = usersFlow.collectAsState().value.sortedBy{ it.name?.lowercase() }
 
     Scaffold { innerPadding ->
         Column (
