@@ -331,17 +331,26 @@ fun ReplyItem(
                     modifier = Modifier.size(25.dp)
                 )
 
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(6.dp))
 
-                Text(
-                    text = userData.value?.name.toString(),
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                Column {
+                    Text(
+                        text = userData.value?.name.toString(),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+
+                    Text(
+                        text = formatDate(reply.createdAt),
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
             
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(text = reply.content, style = MaterialTheme.typography.bodyLarge)
+
         }
     }
 }
