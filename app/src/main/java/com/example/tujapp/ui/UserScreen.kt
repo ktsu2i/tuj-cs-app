@@ -118,6 +118,11 @@ fun UserScreen (
             Text(text = userData.value?.name ?: "Name", style = MaterialTheme.typography.headlineSmall)
             Spacer(modifier = Modifier.height(4.dp))
             Text(text = userData.value?.email ?: "Email", style = MaterialTheme.typography.bodyMedium)
+            if (userData.value?.contact != null)
+            {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = userData.value?.contact ?: "Other Contact Methods", style = MaterialTheme.typography.bodyMedium)
+            }
             if (userData.value?.bio != null)
             {
                 Spacer(modifier = Modifier.height(12.dp))

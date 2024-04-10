@@ -102,7 +102,7 @@ fun ProfileScreen(
         if (newImageUri != null)
         {
             uploadImageToFirebase(currentUserData?.uid.toString(), newImageUri, {})
-            updateProfileWithImage(currentUserData?.uid.toString(), currentUserData?.name.toString(), "", currentUserData?.bio.toString()){}
+            updateProfileWithImage(currentUserData?.uid.toString(), currentUserData?.name.toString(), "", currentUserData?.bio.toString(), currentUserData?.contact.toString()){}
 
         }
     }
@@ -130,10 +130,10 @@ fun ProfileScreen(
             Text(text = currentUserData?.name ?: "Name", style = MaterialTheme.typography.headlineSmall)
             Text(text = currentUserData?.email ?: "Email", style = MaterialTheme.typography.bodyMedium)
 
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = currentUserData?.contact ?: "Edit to add contact methods", style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.height(12.dp))
-
             Text(text = currentUserData?.bio ?: "Edit to add Bio", style = MaterialTheme.typography.bodyLarge)
-
             Spacer(modifier = Modifier.height(16.dp))
 
             Row {
@@ -199,6 +199,7 @@ fun EditProfileDialog(
     var newUserName by remember { mutableStateOf(currentUser?.name ?: "") }
 //    var newImageUri by remember { mutableStateOf<Uri?>(null) }
     var newUserBio by remember { mutableStateOf(currentUser?.bio ?: "") }
+    var newUserContactMethods by remember { mutableStateOf(currentUser?.contact ?: "") }
     Scaffold { innerPadding ->
         AlertDialog (
             containerColor = Color.White,
@@ -213,11 +214,18 @@ fun EditProfileDialog(
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField (
+                        value = newUserContactMethods,
+                        onValueChange = { newUserContactMethods = it },
+                        label = { Text(text = "Other Contact Methods") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField (
                         value = newUserBio,
                         onValueChange = { newUserBio = it },
                         label = { Text(text = "Bio") },
                         modifier = Modifier.fillMaxWidth()
                     )
+
                 }
             },
             confirmButton = {
@@ -225,8 +233,8 @@ fun EditProfileDialog(
                     onClick = {
                         // update username
                         if (newUserName.isNotEmpty() && currentUser != null) {
-                            updateProfileWithImage(currentUser.uid.toString(), newUserName, "", newUserBio) {
-                                onUpdateSuccess(User(currentUser.uid, currentUser.email, newUserName, newUserBio))
+                            updateProfileWithImage(currentUser.uid.toString(), newUserName, "", newUserBio, newUserContactMethods) {
+                                onUpdateSuccess(User(currentUser.uid, currentUser.email, newUserName, newUserBio, newUserContactMethods))
                             }
                             onDismiss()
 
@@ -258,6 +266,7 @@ fun updateProfileWithImage(
     userName: String,
     imageUrl: String,
     userBio: String,
+    userContacts: String,
     onSuccess: (User) -> Unit,
 ) {
     val userRef = Firebase.database.reference.child("users").child(userId)
@@ -265,10 +274,11 @@ fun updateProfileWithImage(
         "name" to userName,
         "imageUrl" to imageUrl,
         "bio" to userBio,
+        "contact" to userContacts,
     )
 
     userRef.updateChildren(userUpdates).addOnSuccessListener {
-        val updatedUser = User(userId, userName, imageUrl, userBio)
+        val updatedUser = User(userId, userName, imageUrl, userBio, userContacts)
         onSuccess(updatedUser)
     }
 }
