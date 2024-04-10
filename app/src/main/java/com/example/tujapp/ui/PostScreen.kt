@@ -82,7 +82,7 @@ fun PostScreen (
     var imageUri2 by remember { mutableStateOf<Uri?>(null) }
 
 
-    LaunchedEffect (postId) {
+    LaunchedEffect (postId, userData.value?.uid) {
         val databaseRef = Firebase.database.reference
 
         // fetch post data and user data
@@ -130,7 +130,7 @@ fun PostScreen (
             imageUri = uri
         }
 
-        // fetch the user profile image
+        // fetch the posters profile image
         val storageRef2 = Firebase.storage.reference.child("users/${userData.value?.uid.toString()}/profile.jpg")
 
         storageRef2.downloadUrl.addOnSuccessListener { uri ->
@@ -194,32 +194,29 @@ fun PostScreen (
                 Column (
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    currentUser?.let { user ->
-                        Row (
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Image(
-                                painter = if (imageUri == null) painterResource(id = R.drawable.user_profile_icon) else rememberImagePainter(imageUri.toString()),
-                                contentDescription = "user profile",
-                                modifier = Modifier.size(25.dp).clip(CircleShape)
+                    Row (
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            //this is wrong pfp
+                            painter = if (imageUri2 == null) painterResource(id = R.drawable.user_profile_icon) else rememberImagePainter(imageUri2.toString()),
+                            contentDescription = "user profile",
+                            modifier = Modifier.size(25.dp).clip(CircleShape)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Column {
+                            Text(
+                                text = userData.value?.name.toString(),
+                                style = MaterialTheme.typography.bodySmall
                             )
-
-                            Spacer(modifier = Modifier.width(6.dp))
-
-                            Column {
-                                Text(
-                                    text = userData.value?.name.toString(),
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-
-                                Text(
-                                    text = formatDate(postData.value?.createdAt),
-                                    color = Color.Gray,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
+                            Text(
+                                text = formatDate(postData.value?.createdAt),
+                                color = Color.Gray,
+                                style = MaterialTheme.typography.bodySmall
+                            )
                         }
                     }
+
 
                     Spacer(modifier = Modifier.height(4.dp))
 
