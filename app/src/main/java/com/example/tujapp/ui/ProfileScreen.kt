@@ -102,7 +102,7 @@ fun ProfileScreen(
         if (newImageUri != null)
         {
             uploadImageToFirebase(currentUserData?.uid.toString(), newImageUri, {})
-            updateProfileWithImage(currentUserData?.uid.toString(), currentUserData?.name.toString(), ""){}
+            updateProfileWithImage(currentUserData?.uid.toString(), currentUserData?.name.toString(), "", currentUserData?.bio.toString()){}
 
         }
     }
@@ -128,7 +128,11 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(text = currentUserData?.name ?: "Name", style = MaterialTheme.typography.headlineSmall)
-            Text(text = currentUserData?.email ?: "Email", style = MaterialTheme.typography.bodySmall)
+            Text(text = currentUserData?.email ?: "Email", style = MaterialTheme.typography.bodyMedium)
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(text = currentUserData?.bio ?: "Edit to add Bio", style = MaterialTheme.typography.bodyLarge)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -194,7 +198,7 @@ fun EditProfileDialog(
 ) {
     var newUserName by remember { mutableStateOf(currentUser?.name ?: "") }
 //    var newImageUri by remember { mutableStateOf<Uri?>(null) }
-
+    var newUserBio by remember { mutableStateOf(currentUser?.bio ?: "") }
     Scaffold { innerPadding ->
         AlertDialog (
             containerColor = Color.White,
@@ -208,6 +212,12 @@ fun EditProfileDialog(
                         label = { Text(text = "Name") },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    OutlinedTextField (
+                        value = newUserBio,
+                        onValueChange = { newUserBio = it },
+                        label = { Text(text = "Bio") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             },
             confirmButton = {
@@ -215,8 +225,8 @@ fun EditProfileDialog(
                     onClick = {
                         // update username
                         if (newUserName.isNotEmpty() && currentUser != null) {
-                            updateProfileWithImage(currentUser.uid.toString(), newUserName, "") {
-                                onUpdateSuccess(User(currentUser.uid, currentUser.email, newUserName))
+                            updateProfileWithImage(currentUser.uid.toString(), newUserName, "", newUserBio) {
+                                onUpdateSuccess(User(currentUser.uid, currentUser.email, newUserName, newUserBio))
                             }
                             onDismiss()
 
@@ -247,16 +257,18 @@ fun updateProfileWithImage(
     userId: String,
     userName: String,
     imageUrl: String,
+    userBio: String,
     onSuccess: (User) -> Unit,
 ) {
     val userRef = Firebase.database.reference.child("users").child(userId)
     val userUpdates = mapOf(
         "name" to userName,
         "imageUrl" to imageUrl,
+        "bio" to userBio,
     )
 
     userRef.updateChildren(userUpdates).addOnSuccessListener {
-        val updatedUser = User(userId, userName, imageUrl)
+        val updatedUser = User(userId, userName, imageUrl, userBio)
         onSuccess(updatedUser)
     }
 }
