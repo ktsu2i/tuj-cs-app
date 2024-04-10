@@ -99,8 +99,10 @@ fun ProfileScreen(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         newImageUri = uri
-        uploadImageToFirebase(currentUserData?.uid.toString(), newImageUri, {})
-        updateProfileWithImage(currentUserData?.uid.toString(), currentUserData?.name.toString(), ""){
+        if (newImageUri != null)
+        {
+            uploadImageToFirebase(currentUserData?.uid.toString(), newImageUri, {})
+            updateProfileWithImage(currentUserData?.uid.toString(), currentUserData?.name.toString(), ""){}
 
         }
     }
