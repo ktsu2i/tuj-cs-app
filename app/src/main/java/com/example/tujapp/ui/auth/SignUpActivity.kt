@@ -76,8 +76,8 @@ class SignUpActivity : ComponentActivity() {
                         email = user?.email.toString(),
                         name = name,
                         //graduationYear = 0,
-                        //contact = "",
-                        //bio = "",
+                        contact = "",
+                        bio = "",
                     )
                     databaseRef.child("users").child(user!!.uid).setValue(newUser)
 

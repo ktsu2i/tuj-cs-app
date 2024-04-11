@@ -116,7 +116,18 @@ fun UserScreen (
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(text = userData.value?.name ?: "Name", style = MaterialTheme.typography.headlineSmall)
-            Text(text = userData.value?.email ?: "Email", style = MaterialTheme.typography.bodySmall)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = userData.value?.email ?: "Email", style = MaterialTheme.typography.bodyMedium)
+            if (userData.value?.contact != null)
+            {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = userData.value?.contact ?: "Other Contact Methods", style = MaterialTheme.typography.bodyMedium)
+            }
+            if (userData.value?.bio != null)
+            {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(text = userData.value?.bio ?: "Bio", style = MaterialTheme.typography.bodyLarge)
+            }
         }
     }
 }

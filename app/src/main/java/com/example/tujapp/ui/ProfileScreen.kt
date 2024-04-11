@@ -75,7 +75,6 @@ fun ProfileScreen(
 ) {
     val context = LocalContext.current
 
-
     var currentUserData by remember { mutableStateOf<User?>(currentUser) }
     var showDialog by remember { mutableStateOf(false) }
     var newImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -100,6 +99,12 @@ fun ProfileScreen(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         newImageUri = uri
+        if (newImageUri != null)
+        {
+            uploadImageToFirebase(currentUserData?.uid.toString(), newImageUri, {})
+            updateProfileWithImage(currentUserData?.uid.toString(), currentUserData?.name.toString(), "", currentUserData?.bio.toString(), currentUserData?.contact.toString()){}
+
+        }
     }
 
     Scaffold { innerPadding ->
@@ -123,8 +128,12 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(text = currentUserData?.name ?: "Name", style = MaterialTheme.typography.headlineSmall)
-            Text(text = currentUserData?.email ?: "Email", style = MaterialTheme.typography.bodySmall)
+            Text(text = currentUserData?.email ?: "Email", style = MaterialTheme.typography.bodyMedium)
 
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = currentUserData?.contact ?: "Edit to add contact methods", style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(text = currentUserData?.bio ?: "Edit to add Bio", style = MaterialTheme.typography.bodyLarge)
             Spacer(modifier = Modifier.height(16.dp))
 
             Row {
@@ -163,13 +172,13 @@ fun ProfileScreen(
 
             Button(
                 onClick = {
-                Firebase.auth.signOut()
+                    Firebase.auth.signOut()
 
-                val intent = Intent(context, SignInActivity::class.java)
-                context.startActivity(intent)
+                    val intent = Intent(context, SignInActivity::class.java)
+                    context.startActivity(intent)
 
-                (context as? Activity)?.finish()
-            },
+                    (context as? Activity)?.finish()
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Gray
                 )
@@ -189,7 +198,8 @@ fun EditProfileDialog(
 ) {
     var newUserName by remember { mutableStateOf(currentUser?.name ?: "") }
 //    var newImageUri by remember { mutableStateOf<Uri?>(null) }
-
+    var newUserBio by remember { mutableStateOf(currentUser?.bio ?: "") }
+    var newUserContactMethods by remember { mutableStateOf(currentUser?.contact ?: "") }
     Scaffold { innerPadding ->
         AlertDialog (
             containerColor = Color.White,
@@ -203,6 +213,19 @@ fun EditProfileDialog(
                         label = { Text(text = "Name") },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    OutlinedTextField (
+                        value = newUserContactMethods,
+                        onValueChange = { newUserContactMethods = it },
+                        label = { Text(text = "Other Contact Methods") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField (
+                        value = newUserBio,
+                        onValueChange = { newUserBio = it },
+                        label = { Text(text = "Bio") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
                 }
             },
             confirmButton = {
@@ -210,8 +233,8 @@ fun EditProfileDialog(
                     onClick = {
                         // update username
                         if (newUserName.isNotEmpty() && currentUser != null) {
-                            updateProfileWithImage(currentUser.uid.toString(), newUserName, "") {
-                                onUpdateSuccess(User(currentUser.uid, currentUser.email, newUserName))
+                            updateProfileWithImage(currentUser.uid.toString(), newUserName, "", newUserBio, newUserContactMethods) {
+                                onUpdateSuccess(User(currentUser.uid, currentUser.email, newUserName, newUserBio, newUserContactMethods))
                             }
                             onDismiss()
 
@@ -242,16 +265,20 @@ fun updateProfileWithImage(
     userId: String,
     userName: String,
     imageUrl: String,
+    userBio: String,
+    userContacts: String,
     onSuccess: (User) -> Unit,
 ) {
     val userRef = Firebase.database.reference.child("users").child(userId)
     val userUpdates = mapOf(
         "name" to userName,
         "imageUrl" to imageUrl,
+        "bio" to userBio,
+        "contact" to userContacts,
     )
 
     userRef.updateChildren(userUpdates).addOnSuccessListener {
-        val updatedUser = User(userId, userName, imageUrl)
+        val updatedUser = User(userId, userName, imageUrl, userBio, userContacts)
         onSuccess(updatedUser)
     }
 }
@@ -274,4 +301,3 @@ fun uploadImageToFirebase(
 
 //    userRef.updateChildren(mapOf("imageUrl" to imageUri.toString()))
 }
-
