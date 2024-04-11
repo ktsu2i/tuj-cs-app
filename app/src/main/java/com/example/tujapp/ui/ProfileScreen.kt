@@ -115,7 +115,7 @@ fun ProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ){
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Image(
                 painter = rememberImagePainter(newImageUri.toString()),
@@ -217,13 +217,13 @@ fun EditProfileDialog(
                         value = newUserContactMethods,
                         onValueChange = { newUserContactMethods = it },
                         label = { Text(text = "Other Contact Methods") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().height(100.dp)
                     )
                     OutlinedTextField (
                         value = newUserBio,
                         onValueChange = { newUserBio = it },
                         label = { Text(text = "Bio") },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().height(100.dp)
                     )
 
                 }
