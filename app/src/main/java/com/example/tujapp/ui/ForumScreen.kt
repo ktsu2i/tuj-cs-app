@@ -122,7 +122,7 @@ fun ForumScreen(
                             OutlinedTextField (
                                 value = newPostTitle,
                                 onValueChange = { newPostTitle = it },
-                                label = { Text(text = "Post title") },
+                                label = { Text(text = "Title") },
                                 modifier = Modifier.fillMaxWidth()
                             )
 
@@ -130,7 +130,7 @@ fun ForumScreen(
                                 value = newPostContent,
                                 onValueChange = { newPostContent = it },
                                 label = { Text(text = "Write something...") },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth().height(200.dp)
                             )       
                         }
                     },
@@ -323,7 +323,9 @@ fun PostItem(
                     Image(
                         painter = if (imageUri == null) painterResource(id = R.drawable.user_profile_icon) else rememberImagePainter(imageUri.toString()),
                         contentDescription = "user profile",
-                        modifier = Modifier.size(30.dp).clip(CircleShape)
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clip(CircleShape)
                     )
 
                     Spacer(modifier = Modifier.width(6.dp))
@@ -340,6 +342,28 @@ fun PostItem(
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
+
+                    Spacer(modifier = Modifier.weight(1f))
+                    IconButton(
+                        onClick = {
+                            toggleLike(post.postId.toString(), currentUserId)
+                            likedByUser = !likedByUser
+                        },
+                        modifier = Modifier.padding(end = 2.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (likedByUser) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                            contentDescription = "Like",
+                            tint = if (likedByUser) Color.Red else Color.Gray,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    Text(
+                        text = "$likesCount",
+                        color = Color.Gray,
+                        modifier = Modifier.padding(start = 2.dp)
+                    )
                 }
             }
 
@@ -357,51 +381,32 @@ fun PostItem(
                 text = post.content,
                 style = MaterialTheme.typography.bodyLarge
             )
+        }
 
-            Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
 
-            Row (
-                verticalAlignment = Alignment.CenterVertically,
+        Row (
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            IconButton (
+                onClick = {}
             ) {
-                IconButton(
-                    onClick = {
-                        toggleLike(post.postId.toString(), currentUserId)
-                        likedByUser = !likedByUser
-                    }
-                ) {
-                    Icon(
-                        imageVector = if (likedByUser) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = "Like",
-                        tint = if (likedByUser) Color.Red else Color.Gray,
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
-
-                Text(
-                    text = "$likesCount",
-                    color = Color.Gray,
-                    style = TextStyle(fontSize = 16.sp)
-                )
-
-                IconButton(
-                    onClick = {
-                        // todo
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Send,
-                        tint = Color.Gray,
-                        contentDescription = "Reply",
-                        modifier = Modifier.size(22.dp)
-                    )
-                }
-
-                Text(
-                    text = "$repliesCount",
-                    color = Color.Gray,
-                    style = TextStyle(fontSize = 16.sp)
+                Icon(
+                    imageVector = Icons.Filled.Send,
+                    tint = Color.Gray,
+                    contentDescription = "Reply",
+                    modifier = Modifier.size(20.dp)
                 )
             }
+
+            Text(
+                text = if (repliesCount == 1) "$repliesCount reply" else "$repliesCount replies",
+                color = Color.Gray,
+                fontSize = 16.sp
+            )
         }
+
+        Spacer(modifier = Modifier.height(4.dp))
     }
 }

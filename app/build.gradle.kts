@@ -81,9 +81,6 @@ dependencies {
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-auth")
 
-    api ("androidx.activity:activity-ktx:1.2.0-alpha07")
-    api ("androidx.fragment:fragment-ktx:1.3.0-alpha07")
-
     // coil
     implementation("io.coil-kt:coil-compose:1.4.0")
 
