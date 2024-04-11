@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
+import com.example.tujapp.R
 import com.example.tujapp.data.DataSource
 import com.example.tujapp.data.User
 import com.example.tujapp.model.profilePic
@@ -118,7 +119,7 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Image(
-                painter = rememberImagePainter(newImageUri.toString()),
+                painter = if (newImageUri == null) painterResource(id = R.drawable.user_profile_icon) else rememberImagePainter(newImageUri.toString()),
                 contentDescription = "profile image",
                 modifier = Modifier
                     .size(128.dp)
@@ -217,13 +218,17 @@ fun EditProfileDialog(
                         value = newUserContactMethods,
                         onValueChange = { newUserContactMethods = it },
                         label = { Text(text = "Other Contact Methods") },
-                        modifier = Modifier.fillMaxWidth().height(100.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
                     )
                     OutlinedTextField (
                         value = newUserBio,
                         onValueChange = { newUserBio = it },
                         label = { Text(text = "Bio") },
-                        modifier = Modifier.fillMaxWidth().height(100.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
                     )
 
                 }
