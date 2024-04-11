@@ -149,7 +149,7 @@ fun PostScreen (
                     contentDescription = "user profile",
                     modifier = Modifier.size(40.dp).clip(CircleShape)
                 )
-                
+
                 Spacer(modifier = Modifier.width(4.dp))
 
                 OutlinedTextField (
@@ -255,7 +255,7 @@ fun PostScreen (
 //                    }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(1.dp))
 
             RepliesList(postId = postId)
@@ -364,7 +364,7 @@ fun ReplyItem(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(text = reply.content, style = MaterialTheme.typography.bodyLarge)

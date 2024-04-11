@@ -172,13 +172,13 @@ fun ProfileScreen(
 
             Button(
                 onClick = {
-                Firebase.auth.signOut()
+                    Firebase.auth.signOut()
 
-                val intent = Intent(context, SignInActivity::class.java)
-                context.startActivity(intent)
+                    val intent = Intent(context, SignInActivity::class.java)
+                    context.startActivity(intent)
 
-                (context as? Activity)?.finish()
-            },
+                    (context as? Activity)?.finish()
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Gray
                 )
