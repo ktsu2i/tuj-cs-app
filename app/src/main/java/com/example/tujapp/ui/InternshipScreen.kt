@@ -115,7 +115,7 @@ fun InternshipScreen(
                             OutlinedTextField (
                                 value = newInternshipTitle,
                                 onValueChange = { newInternshipTitle = it },
-                                label = { Text(text = "Title...") },
+                                label = { Text(text = "Title") },
                                 modifier = Modifier
                                     .fillMaxWidth()
                             )
@@ -123,7 +123,7 @@ fun InternshipScreen(
                             OutlinedTextField (
                                 value = newInternshipLink,
                                 onValueChange = { newInternshipLink = it },
-                                label = { Text(text = "Link to Internship...") },
+                                label = { Text(text = "URL") },
                                 modifier = Modifier
                                     .fillMaxWidth()
                             )
@@ -131,9 +131,10 @@ fun InternshipScreen(
                             OutlinedTextField (
                                 value = newInternshipDescription,
                                 onValueChange = { newInternshipDescription = it },
-                                label = { Text(text = "Description...") },
+                                label = { Text(text = "Description") },
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .height(200.dp)
                             )
                         }
                     },
@@ -249,11 +250,11 @@ fun InternshipItem(
                         modifier = Modifier.size(30.dp).clip(CircleShape)
                     )
 
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
 
                     Text(
                         text = userData.value?.name.toString(),
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }

@@ -103,7 +103,7 @@ fun UserScreen (
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ){
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Image(
                 painter = if (imageUri == null) painterResource(id = R.drawable.user_profile_icon) else rememberImagePainter(imageUri.toString()),
