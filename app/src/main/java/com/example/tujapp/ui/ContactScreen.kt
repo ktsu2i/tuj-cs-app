@@ -65,7 +65,7 @@ fun ContactScreen(
     val usersFlow = remember { MutableStateFlow<List<User>>(emptyList()) }
     val searchQuery = remember { mutableStateOf("") }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(Unit, usersFlow) {
         getAllUsers(usersFlow)
     }
 
@@ -134,7 +134,7 @@ fun UserItem(
 ) {
     var imageUri by remember { mutableStateOf<Uri?>(null) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(Unit, user, imageUri) {
         // fetch the user profile image
         val storageRef = com.google.firebase.ktx.Firebase.storage.reference.child("users/${user.uid.toString()}/profile.jpg")
 
